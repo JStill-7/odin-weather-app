@@ -3,6 +3,17 @@
     margin: 0;
 }
 
+#temp-box {
+    /* border: 1px solid black; */
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+#celsius-btn {
+    height: 30px;
+    margin-left: 10px;
+}
+
 #container {
     border: 2px solid black;
     height: 100vh;
