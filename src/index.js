@@ -28,7 +28,7 @@ const API_KEY = process.env.VISUAL_CROSSING_API_KEY;
 const form = document.querySelector('#weather-form');
 const cityInput = document.querySelector('#city-search');
 
-const celsiusConvert = document.querySelector('#celsius-btn');
+const celsiusConvertBtn = document.querySelector('#celsius-btn');
 
 //const cityContainer = document.querySelector('.city-container');
 const cityDateTime = document.querySelector('#date-time');
@@ -81,7 +81,7 @@ form.addEventListener('submit', async(event) => {
 
     const dayElement = card.querySelector('.forecast-day');
     const tempElement = card.querySelector('.forecast-temp');
-    const iconElement = card.querySelector('.forecast-icon');
+    
     
 
     const date = new Date(`${day.datetime}T12:00:00`);
@@ -114,6 +114,7 @@ form.addEventListener('submit', async(event) => {
     const date = new Date(data.currentConditions.datetimeEpoch * 1000);
 
     const formattedDate = date.toLocaleString('en-US', {
+    timeZone : data.timezone,
     weekday: 'short',
     month: 'short',
     day: 'numeric',
@@ -144,13 +145,12 @@ form.addEventListener('submit', async(event) => {
 
 
 function updateTemperatureDisplays() {
-    // Update the main temperature
+
     const mainTemp = isCelsius
         ? (currentTempF - 32) * 5 / 9
         : currentTempF;
 
-    cityTemp.textContent =
-        `${Math.round(mainTemp)}°${isCelsius ? 'C' : 'F'}`;
+    cityTemp.textContent = `${Math.round(mainTemp)}°${isCelsius ? 'C' : 'F'}`;
 
     // Update the five forecast temperatures
     forecastCards.forEach((card, index) => {
@@ -161,16 +161,28 @@ function updateTemperatureDisplays() {
             ? (fahrenheit - 32) * 5 / 9
             : fahrenheit;
 
-        tempElement.textContent =
-            `${Math.round(temperature)}°${isCelsius ? 'C' : 'F'}`;
+        tempElement.textContent = `${Math.round(temperature)}°${isCelsius ? 'C' : 'F'}`;
     });
 }
 
-celsiusConvert.addEventListener('click', () => {
+celsiusConvertBtn.addEventListener('click', () => {
+
+    if (currentTempF === null || forecastDays.length === 0) return;
     isCelsius = !isCelsius;
+
+    if(isCelsius === true) {
+        celsiusConvertBtn.textContent = '°F'
+    } else {
+        celsiusConvertBtn.textContent = '°C'
+    }
+
+
     updateTemperatureDisplays();
 });
 
 
 
 console.log('weather app')
+
+
+//crashes if user hits celsius without putting in a city first
