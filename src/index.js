@@ -30,15 +30,17 @@ const cityInput = document.querySelector('#city-search');
 
 const celsiusConvertBtn = document.querySelector('#celsius-btn');
 
-//const cityContainer = document.querySelector('.city-container');
+
 const cityDateTime = document.querySelector('#date-time');
 const cityName = document.querySelector('#city');
 const cityTemp = document.querySelector('#temp');
 const forecastCards = document.querySelectorAll('.forecast-card');
+const currentIcon = document.querySelector('#current-icon');
 
-//const foreCastContainer = document.querySelector('.forecast-container');
+const emptyState = document.querySelector('#empty-state');
+const weatherContent = document.querySelector('#weather-content');
+const forecastSection = document.querySelector('#forecast-section');
 
-//let tempElementF = document.querySelectorAll('.forecast-temp');
 
 let isCelsius = false;
 let currentTempF = null;
@@ -64,82 +66,69 @@ async function getWeather(city) {
 }
 
 
-form.addEventListener('submit', async(event) => {
-    event.preventDefault();
+form.addEventListener('submit', async (event) => {
 
+    event.preventDefault();
 
     const city = cityInput.value.trim();
 
     if (!city) return;
 
     const data = await getWeather(city);
+
+    if (!data) return;
+
     currentTempF = data.currentConditions.temp;
     forecastDays = data.days.slice(1, 6);
 
+    // Update forecast cards
     forecastCards.forEach((card, index) => {
-    const day = data.days[index + 1];
 
-    const dayElement = card.querySelector('.forecast-day');
-    const tempElement = card.querySelector('.forecast-temp');
-    
-    
+        const day = forecastDays[index];
 
-    const date = new Date(`${day.datetime}T12:00:00`);
+        const dayElement = card.querySelector('.forecast-day');
+        const iconElement = card.querySelector('.forecast-icon');
 
-    dayElement.textContent = date.toLocaleDateString('en-US', {
-        weekday: 'short'
+        const date = new Date(`${day.datetime}T12:00:00`);
+
+        dayElement.textContent = date.toLocaleDateString('en-US', {
+            weekday: 'short'
+        });
+
+        iconElement.src = weatherIcons[day.icon];
+        iconElement.alt = day.conditions;
+
     });
 
-    tempElement.textContent = day.temp.toFixed(0) + '°F';
-
-    
-
-    forecastCards.forEach((card, index) => {
-    const day = data.days[index];
-
-
-    const iconElement = card.querySelector('.forecast-icon');
-
-    iconElement.src = weatherIcons[day.icon];
-    iconElement.alt = day.conditions;
-});
-
-
-
-
-    console.log(day.icon);
-});
-    
-
+    // Format current date and time
     const date = new Date(data.currentConditions.datetimeEpoch * 1000);
 
     const formattedDate = date.toLocaleString('en-US', {
-    timeZone : data.timezone,
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-});
+        timeZone: data.timezone,
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
 
-
-    //clear placeholder first
-    cityName.textContent = '';
-    cityTemp.textContent = '';
-    cityDateTime.textContent = '';
-
-
-
-
-
-    //update main card temp,name,time,date
-    currentTempF = data.currentConditions.temp;
+ 
+    // Update main card
     cityDateTime.textContent = formattedDate;
     cityName.textContent = data.address;
+    currentIcon.src = weatherIcons[data.currentConditions.icon];
+    currentIcon.alt = data.currentConditions.conditions;
 
+
+    // Update all temperatures
     updateTemperatureDisplays();
+
+    // Hide welcome screen and reveal weather
+    emptyState.hidden = true;
+    weatherContent.hidden = false;
+    forecastSection.hidden = false;
 
 });
 
@@ -184,5 +173,3 @@ celsiusConvertBtn.addEventListener('click', () => {
 
 console.log('weather app')
 
-
-//crashes if user hits celsius without putting in a city first
